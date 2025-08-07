@@ -260,7 +260,8 @@ body {
         & a.preview-image {
             display: block;
         }
-        & img {
+        & img,
+        & video {
             display: block;
             max-height: 100px;
             min-height: 30px;

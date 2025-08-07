@@ -45,7 +45,7 @@ export const Tiefling = function(container, options = {}) {
      * @param image - path to image
      * @param depthMap - path to depth map
      */
-    const load3DImage = (image, depthMap) => {
+    const load3DImage = (image, depthMap, opts = {}) => {
 
         if (view1) {
             view1.destroy();
@@ -57,6 +57,7 @@ export const Tiefling = function(container, options = {}) {
                 focus: this.focus,
                 devicePixelRatio: this.devicePixelRatio,
                 expandDepthmapRadius: this.expandDepthmapRadius,
+                isVideo: opts.isVideo,
             });
 
             if (view2) {
@@ -67,6 +68,7 @@ export const Tiefling = function(container, options = {}) {
                 focus: this.focus,
                 devicePixelRatio: this.devicePixelRatio,
                 expandDepthmapRadius: this.expandDepthmapRadius,
+                isVideo: opts.isVideo,
             });
         } else {
             view1 = TieflingView(container.querySelector('.inner .container-left'), image, depthMap, {
@@ -74,6 +76,7 @@ export const Tiefling = function(container, options = {}) {
                 focus: this.focus,
                 devicePixelRatio: this.devicePixelRatio,
                 expandDepthmapRadius: this.expandDepthmapRadius,
+                isVideo: opts.isVideo,
             });
         }
     }
@@ -580,15 +583,35 @@ export const TieflingView = function (container, image, depthMap, options) {
 
         container.appendChild(renderer.domElement);
 
-        const textureLoader = new THREE.TextureLoader();
-        const imagePromise = new Promise(resolve => {
-            textureLoader.load(image, texture => {
-                texture.encoding = THREE.sRGBEncoding;
-                uniforms.map.value = texture;
-                imageAspectRatio = texture.image.width / texture.image.height;
-                resolve();
+        let imagePromise;
+        if (options.isVideo || (typeof image === 'string' && image.match(/\.(mp4|webm|ogg)$/i))) {
+            const video = document.createElement('video');
+            video.src = image;
+            video.loop = true;
+            video.muted = true;
+            video.playsInline = true;
+            video.autoplay = true;
+            imagePromise = new Promise(resolve => {
+                video.addEventListener('loadeddata', () => {
+                    video.play();
+                    const texture = new THREE.VideoTexture(video);
+                    texture.encoding = THREE.sRGBEncoding;
+                    uniforms.map.value = texture;
+                    imageAspectRatio = video.videoWidth / video.videoHeight;
+                    resolve();
+                });
             });
-        });
+        } else {
+            const textureLoader = new THREE.TextureLoader();
+            imagePromise = new Promise(resolve => {
+                textureLoader.load(image, texture => {
+                    texture.encoding = THREE.sRGBEncoding;
+                    uniforms.map.value = texture;
+                    imageAspectRatio = texture.image.width / texture.image.height;
+                    resolve();
+                });
+            });
+        }
 
         const depthPromise = new Promise(resolve => {
             const img = new Image();
@@ -928,6 +951,10 @@ export const TieflingView = function (container, image, depthMap, options) {
             window.removeEventListener('resize', onResize);
 
             if (material.map) {
+                if (material.map.image && material.map.image.tagName === 'VIDEO') {
+                    material.map.image.pause();
+                    material.map.image.src = '';
+                }
                 material.map.dispose();
             }
 
