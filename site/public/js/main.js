@@ -26,7 +26,6 @@ Alpine.data('app', () => ({
     inputImageDragActive: false,
     inputImage: null,
     inputDataURL: '',
-    inputIsVideo: false,
 
     depthmapImageURL: '', // loaded depthmap via url?
     depthmapImageFile: null, // or via file
@@ -349,7 +348,6 @@ Alpine.data('app', () => ({
 
             this.depthmapImageURL = this.depthmapURL = this.depthmapDataURL = exampleImage.depthmap;
             this.inputImageURL = exampleImage.image;
-            this.inputIsVideo = false;
             this.loadImage();
         }
 
@@ -363,14 +361,11 @@ Alpine.data('app', () => ({
             let inputURL = '';
             this.depthmapURL = '';
 
-            // get input image/video from url or uploaded or dragged file
+            // get input image from url or uploaded or dragged file
             if (this.inputImageFile) {
                 this.inputImage = this.inputImageFile;
-                this.inputIsVideo = this.inputImageFile.type.startsWith('video/');
             } else if (this.inputImageURL) {
                 this.inputImage = await fetch(this.inputImageURL).then(response => response.blob());
-                this.inputIsVideo = this.inputImage.type.startsWith('video/') ||
-                    this.inputImageURL.match(/\.(mp4|webm|ogg)$/i);
             }
 
             // get depthmap image from url, uploaded or dragged file
@@ -383,27 +378,20 @@ Alpine.data('app', () => ({
                 this.depthmapImage = await fetch(this.depthmapImageURL).then(response => response.blob());
             }
 
-            const imageURL = URL.createObjectURL(this.inputImage);
-
             if (this.depthmapImage) {
-                const depthURL = URL.createObjectURL(this.depthmapImage);
-                this.depthmapURL = depthURL;
-                tiefling.load3DImage(imageURL, depthURL, { isVideo: this.inputIsVideo });
+                tiefling.load3DImage(URL.createObjectURL(this.inputImage), URL.createObjectURL(this.depthmapImage));
 
             } else {
-                if (this.inputIsVideo) {
-                    throw new Error('Video input requires a depth map');
-                }
                 this.depthmapURL = await tiefling.getDepthmapURL(this.inputImage);
 
                 this.depthmapImage = await fetch(this.depthmapURL).then(response => response.blob());
 
-                tiefling.load3DImage(imageURL, this.depthmapURL, { isVideo: this.inputIsVideo });
+                tiefling.load3DImage(URL.createObjectURL(this.inputImage), this.depthmapURL);
 
             }
 
-            this.depthmapDataURL = this.depthmapURL;
-            this.inputDataURL = imageURL;
+            this.depthmapDataURL = URL.createObjectURL(this.depthmapImage);
+            this.inputDataURL = URL.createObjectURL(this.inputImage);
 
 
             // add ?input (and optional &depthmap) parameter to history, if the urls start with https
@@ -429,8 +417,8 @@ Alpine.data('app', () => ({
     async tieflingImageFileDrop(event) {
 
         const file = event.dataTransfer.files[0];
-        if (!file || !file.type.match('^(image|video)/')) {
-            console.error("Dropped file is not an image or video");
+        if (!file || !file.type.match('^image/')) {
+            console.error("Dropped file is not an image");
             this.tieflingDragActive = false;
             return;
         }
@@ -439,7 +427,6 @@ Alpine.data('app', () => ({
             this.tieflingDragActive = false;
 
             this.inputImageFile = file;
-            this.inputIsVideo = file.type.startsWith('video/');
 
             this.depthmapImageURL = '';
             this.depthmapDataURL = '';
@@ -461,7 +448,6 @@ Alpine.data('app', () => ({
 
         this.inputImageURL = "";
         this.inputImageFile = file;
-        this.inputIsVideo = file.type.startsWith('video/');
 
         this.inputDataURL = URL.createObjectURL(file);
 
@@ -474,8 +460,8 @@ Alpine.data('app', () => ({
     async handleInputImageFileDrop(event) {
 
         const file = event.dataTransfer.files[0];
-        if (!file || !file.type.match('^(image|video)/')) {
-            console.error("Dropped file is not an image or video");
+        if (!file || !file.type.match('^image/')) {
+            console.error("Dropped file is not an image");
             this.inputImageDragActive = false;
             return;
         }
@@ -486,7 +472,6 @@ Alpine.data('app', () => ({
             this.inputImageURL = "";
 
             this.inputImageFile = file;
-            this.inputIsVideo = file.type.startsWith('video/');
             this.inputDataURL = URL.createObjectURL(file);
 
             // clear depthmap
@@ -541,7 +526,6 @@ Alpine.data('app', () => ({
 
     removeInputImage() {
         this.inputImage = this.inputImageFile = this.inputImageURL = this.inputDataURL = null;
-        this.inputIsVideo = false;
     },
 
 
@@ -673,7 +657,7 @@ Alpine.data('app', () => ({
 
         // re-init 3d view
         tiefling.setDisplayMode(this.displayMode);
-        tiefling.load3DImage(this.inputDataURL, this.depthmapDataURL, { isVideo: this.inputIsVideo });
+        tiefling.load3DImage(this.inputDataURL, this.depthmapDataURL);
     },
 
     updateMouseXOffset() {

@@ -12,8 +12,8 @@ https://github.com/user-attachments/assets/8df87945-a159-4fad-b566-82d7943b2991
 
 ## Loading images
 
-- Drag &amp; Drop an image or video anywhere
-- Load an image or video via the menu (enter URL, upload a file or drag&drop one on the field). Optionally load your own depth map. If none is provided, it is generated.
+- Drag &amp; Drop an image anywhere
+- Load an image via the menu (enter URL, upload a file or drag&drop one on the field). Optionally load your own depth map. If none is provided, it is generated.
 - Use URL parameters: 
   - `?input={urlencoded url of image}` - Load image, generate depth map. Supports all formats the browser supports. In addition to `input`:
     - `&depthmap={urlencoded url of depth map image}` - Bring your own depth map.
@@ -48,20 +48,6 @@ You can also drag the VR cursor from left to right on the whole image to adjust 
 It's (mostly) a static website, all the 3D generation happens in your browser. So, host the contents of the `public` folder yourself however you like. But give it its own domain, it's not tested to work in subfolders yet.
 
 Also there is an api.php that acts as a proxy for the catbox.moe API. Ignore it if you don't use this feature, otherwise install PHP 8+.
-
-## AI-generated motion
-
-The `scripts/ai_motion.py` helper animates masked regions of a still image
-with [Segment Anything](https://github.com/facebookresearch/segment-anything)
-and [Stable Video Diffusion](https://huggingface.co/stabilityai/stable-video-diffusion-img2vid-xt-1-1).
-The rest of the Tiefling 3D/VR pipeline remains unchanged—use the produced
-`output.mp4` as a `VideoTexture` in Three.js or as a `VideoPlayer` texture in
-Unity.  You can drag the generated MP4 and its depth map onto Tiefling to see
-the animated region in parallax 3D.
-
-```
-python scripts/ai_motion.py --image waterfall.jpg --sam-checkpoint sam_vit_h.pth
-```
 
 ## Thanks to
 
