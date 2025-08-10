@@ -70,129 +70,143 @@ Alpine.data('app', () => ({
 
     exampleImages: [
         {
-            'key': 'jungle',
-            'image': 'img/examples/jungle.jpg',
-            'thumb': 'img/examples/jungle_thumb.jpg',
-            'depthmap': 'img/examples/jungle_depthmap.png',
+            'key': 'autochrome-89',
+            'image': 'img/autochrome/cacdoha_000089_access.jpg',
+            'thumb': 'img/autochrome/cacdoha_000089_access.jpg',
+            'depthmap': 'img/autochrome/89.png',
             'expandDepthmapRadius': 7
         },
         {
-            'key': 'portrait',
-            'image': 'img/examples/portrait.jpg',
-            'thumb': 'img/examples/portrait_thumb.jpg',
-            'depthmap': 'img/examples/portrait_depthmap.png',
-            'expandDepthmapRadius': 5
-        },
-        {
-            'key': 'robot',
-            'image': 'img/examples/robot.jpg',
-            'thumb': 'img/examples/robot_thumb.jpg',
-            'depthmap': 'img/examples/robot_depthmap.png',
-            'expandDepthmapRadius': 8
-        },
-        {
-            'key': 'hoernchen',
-            'image': 'img/examples/hoernchen.jpg',
-            'thumb': 'img/examples/hoernchen_thumb.jpg',
-            'depthmap': 'img/examples/hoernchen_depthmap.png',
-            'expandDepthmapRadius': 6
-        },
-        {
-            'key': 'wombat-on-a-lawnmower',
-            'image': 'img/examples/wombat-on-a-lawnmower.jpg',
-            'thumb': 'img/examples/wombat-on-a-lawnmower_thumb.jpg',
-            'depthmap': 'img/examples/wombat-on-a-lawnmower_depthmap.png',
+            'key': 'autochrome-110',
+            'image': 'img/autochrome/cacdoha_000110_access.jpg',
+            'thumb': 'img/autochrome/cacdoha_000110_access.jpg',
+            'depthmap': 'img/autochrome/110.png',
             'expandDepthmapRadius': 7
         },
         {
-            'key': 'hotdog',
-            'image': 'img/examples/hotdog.jpg',
-            'thumb': 'img/examples/hotdog_thumb.jpg',
-            'depthmap': 'img/examples/hotdog_depthmap.png',
-            'expandDepthmapRadius': 5
-        },
-        {
-            'key': 'bernd',
-            'image': 'img/examples/bernd.jpg',
-            'thumb': 'img/examples/bernd_thumb.jpg',
-            'depthmap': 'img/examples/bernd_depthmap.png',
-            'expandDepthmapRadius': 4
-        },
-        {
-            'key': 'cafetattoos',
-            'image': 'img/examples/cafetattoos.jpg',
-            'thumb': 'img/examples/cafetattoos_thumb.jpg',
-            'depthmap': 'img/examples/cafetattoos_depthmap.png',
+            'key': 'autochrome-116',
+            'image': 'img/autochrome/cacdoha_000116_access.jpg',
+            'thumb': 'img/autochrome/cacdoha_000116_access.jpg',
+            'depthmap': 'img/autochrome/116.png',
             'expandDepthmapRadius': 7
         },
         {
-            'key': 'beachpeace',
-            'image': 'img/examples/beachpeace.jpg',
-            'thumb': 'img/examples/beachpeace_thumb.jpg',
-            'depthmap': 'img/examples/beachpeace_depthmap.png',
+            'key': 'autochrome-122',
+            'image': 'img/autochrome/cacdoha_000122_access.jpg',
+            'thumb': 'img/autochrome/cacdoha_000122_access.jpg',
+            'depthmap': 'img/autochrome/122.png',
             'expandDepthmapRadius': 7
         },
         {
-            'key': 'boardbear',
-            'image': 'img/examples/boardbear.jpg',
-            'thumb': 'img/examples/boardbear_thumb.jpg',
-            'depthmap': 'img/examples/boardbear_depthmap.png',
-            'expandDepthmapRadius': 10
-        },
-        {
-            'key': 'crystalmountain',
-            'image': 'img/examples/crystalmountain.jpg',
-            'thumb': 'img/examples/crystalmountain_thumb.jpg',
-            'depthmap': 'img/examples/crystalmountain_depthmap.png',
-            'expandDepthmapRadius': 8
-        },
-        {
-            'key': 'desertrace',
-            'image': 'img/examples/desertrace.jpg',
-            'thumb': 'img/examples/desertrace_thumb.jpg',
-            'depthmap': 'img/examples/desertrace_depthmap.png',
+            'key': 'autochrome-123',
+            'image': 'img/autochrome/cacdoha_000123_access.jpg',
+            'thumb': 'img/autochrome/cacdoha_000123_access.jpg',
+            'depthmap': 'img/autochrome/123.png',
             'expandDepthmapRadius': 7
         },
         {
-            'key': 'spikypizza',
-            'image': 'img/examples/spikypizza.jpg',
-            'thumb': 'img/examples/spikypizza_thumb.jpg',
-            'depthmap': 'img/examples/spikypizza_depthmap.png',
-            'expandDepthmapRadius': 5
-        },
-        {
-            'key': 'bestpizza',
-            'image': 'img/examples/bestpizza.jpg',
-            'thumb': 'img/examples/bestpizza_thumb.jpg',
-            'depthmap': 'img/examples/bestpizza_depthmap.png',
-            'expandDepthmapRadius': 12
-        },
-        {
-            'key': 'mrfrog',
-            'image': 'img/examples/mrfrog.jpg',
-            'thumb': 'img/examples/mrfrog_thumb.jpg',
-            'depthmap': 'img/examples/mrfrog_depthmap.png',
+            'key': 'autochrome-140',
+            'image': 'img/autochrome/cacdoha_000140_access.jpg',
+            'thumb': 'img/autochrome/cacdoha_000140_access.jpg',
+            'depthmap': 'img/autochrome/140.png',
             'expandDepthmapRadius': 7
         },
         {
-            'key': 'seagulls',
-            'image': 'img/examples/seagulls.jpg',
-            'thumb': 'img/examples/seagulls_thumb.jpg',
-            'depthmap': 'img/examples/seagulls_depthmap.png',
+            'key': 'autochrome-149',
+            'image': 'img/autochrome/cacdoha_000149_access.jpg',
+            'thumb': 'img/autochrome/cacdoha_000149_access.jpg',
+            'depthmap': 'img/autochrome/149.png',
             'expandDepthmapRadius': 7
         },
         {
-            'key': 'snack',
-            'image': 'img/examples/snack.jpg',
-            'thumb': 'img/examples/snack_thumb.jpg',
-            'depthmap': 'img/examples/snack_depthmap.png',
+            'key': 'autochrome-152',
+            'image': 'img/autochrome/cacdoha_000152_access.jpg',
+            'thumb': 'img/autochrome/cacdoha_000152_access.jpg',
+            'depthmap': 'img/autochrome/152.png',
             'expandDepthmapRadius': 7
         },
         {
-            'key': 'rat',
-            'image': 'img/examples/rat.jpg',
-            'thumb': 'img/examples/rat_thumb.jpg',
-            'depthmap': 'img/examples/rat_depthmap.png',
+            'key': 'autochrome-154',
+            'image': 'img/autochrome/cacdoha_000154_access.jpg',
+            'thumb': 'img/autochrome/cacdoha_000154_access.jpg',
+            'depthmap': 'img/autochrome/154.png',
+            'expandDepthmapRadius': 7
+        },
+        {
+            'key': 'autochrome-156',
+            'image': 'img/autochrome/cacdoha_000156_access.jpg',
+            'thumb': 'img/autochrome/cacdoha_000156_access.jpg',
+            'depthmap': 'img/autochrome/156.png',
+            'expandDepthmapRadius': 7
+        },
+        {
+            'key': 'autochrome-161',
+            'image': 'img/autochrome/cacdoha_000161_access.jpg',
+            'thumb': 'img/autochrome/cacdoha_000161_access.jpg',
+            'depthmap': 'img/autochrome/161.png',
+            'expandDepthmapRadius': 7
+        },
+        {
+            'key': 'autochrome-196',
+            'image': 'img/autochrome/cacdoha_000196_access.jpg',
+            'thumb': 'img/autochrome/cacdoha_000196_access.jpg',
+            'depthmap': 'img/autochrome/196.png',
+            'expandDepthmapRadius': 7
+        },
+        {
+            'key': 'autochrome-321',
+            'image': 'img/autochrome/cacdoha_000321_access.jpg',
+            'thumb': 'img/autochrome/cacdoha_000321_access.jpg',
+            'depthmap': 'img/autochrome/321.png',
+            'expandDepthmapRadius': 7
+        },
+        {
+            'key': 'autochrome-345',
+            'image': 'img/autochrome/cacdoha_000345_access.jpg',
+            'thumb': 'img/autochrome/cacdoha_000345_access.jpg',
+            'depthmap': 'img/autochrome/345.png',
+            'expandDepthmapRadius': 7
+        },
+        {
+            'key': 'autochrome-412',
+            'image': 'img/autochrome/cacdoha_000412_access.jpg',
+            'thumb': 'img/autochrome/cacdoha_000412_access.jpg',
+            'depthmap': 'img/autochrome/412.png',
+            'expandDepthmapRadius': 7
+        },
+        {
+            'key': 'autochrome-422',
+            'image': 'img/autochrome/cacdoha_000422_access.jpg',
+            'thumb': 'img/autochrome/cacdoha_000422_access.jpg',
+            'depthmap': 'img/autochrome/422.png',
+            'expandDepthmapRadius': 7
+        },
+        {
+            'key': 'autochrome-443',
+            'image': 'img/autochrome/cacdoha_000443_access.jpg',
+            'thumb': 'img/autochrome/cacdoha_000443_access.jpg',
+            'depthmap': 'img/autochrome/443.png',
+            'expandDepthmapRadius': 7
+        },
+        {
+            'key': 'autochrome-457',
+            'image': 'img/autochrome/cacdoha_000457_access.jpg',
+            'thumb': 'img/autochrome/cacdoha_000457_access.jpg',
+            'depthmap': 'img/autochrome/457.png',
+            'expandDepthmapRadius': 7
+        },
+        {
+            'key': 'autochrome-490',
+            'image': 'img/autochrome/cacdoha_000490_access.jpg',
+            'thumb': 'img/autochrome/cacdoha_000490_access.jpg',
+            'depthmap': 'img/autochrome/490.png',
+            'expandDepthmapRadius': 7
+        },
+        {
+            'key': 'autochrome-491',
+            'image': 'img/autochrome/cacdoha_000491_access.jpg',
+            'thumb': 'img/autochrome/cacdoha_000491_access.jpg',
+            'depthmap': 'img/autochrome/491.png',
             'expandDepthmapRadius': 7
         }
     ],

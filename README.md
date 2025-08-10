@@ -61,6 +61,17 @@ This project is configured for GitHub Pages deployment. The site is served from 
     └── depthanythingv2-vits-dynamic-quant.onnx
 ```
 
+### URL Handling for GitHub Pages
+
+The application automatically handles relative URLs for GitHub Pages by prepending the repository path (`/tiefling/`) to relative image URLs. This ensures that:
+
+- **Example images** load correctly from the examples directory
+- **URL parameters** with relative paths work properly (e.g., `?input=img/examples/portrait.jpg`)
+- **Share URLs** are generated with the correct base path
+- **Cross-domain compatibility** - works both locally and on GitHub Pages
+
+The `fixRelativeURL()` helper function automatically detects relative URLs and prepends the appropriate base path based on the current location.
+
 ## Local Development
 
 To run this locally:
