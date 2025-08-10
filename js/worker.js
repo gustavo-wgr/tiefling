@@ -1,4 +1,4 @@
-import * as ort from '/js/tiefling/node_modules/onnxruntime-web/dist/ort.mjs';
+import * as ort from 'tiefling/node_modules/onnxruntime-web/dist/ort.mjs';
 let initialized = false;
 
 /**

@@ -1,4 +1,4 @@
-import * as THREE from '/js/tiefling/node_modules/three/build/three.module.js';
+import * as THREE from 'node_modules/three/build/three.module.js';
 import { WebXRManager } from './webxr-manager.js';
 
 export const Tiefling = function(container, options = {}) {
@@ -411,10 +411,10 @@ export const Tiefling = function(container, options = {}) {
 export const generateDepthmap = function(imageFile, options = {}) {
 
     const wasmPaths = options.wasmPaths || {
-        'ort-wasm-simd-threaded.wasm': '/js/tiefling/onnx-wasm/ort-wasm-simd-threaded.wasm',
-        'ort-wasm-simd.wasm': '/js/tiefling/onnx-wasm/ort-wasm-simd.wasm',
-        'ort-wasm-threaded.wasm': '/js/tiefling/onnx-wasm/ort-wasm-threaded.wasm',
-        'ort-wasm.wasm': '/js/tiefling/onnx-wasm/ort-wasm.wasm'
+                    'ort-wasm-simd-threaded.wasm': 'onnx-wasm/ort-wasm-simd-threaded.wasm',
+            'ort-wasm-simd.wasm': 'onnx-wasm/ort-wasm-simd.wasm',
+            'ort-wasm-threaded.wasm': 'onnx-wasm/ort-wasm-threaded.wasm',
+            'ort-wasm.wasm': 'onnx-wasm/ort-wasm.wasm'
     };
 
     const onnxModel = options.onnxModel || '/models/depthanythingv2-vits-dynamic-quant.onnx';
@@ -494,7 +494,7 @@ export const generateDepthmap = function(imageFile, options = {}) {
 
             const imageData = expandedCtx.getImageData(0, 0, size, size);
 
-            const worker = new Worker('/js/worker.js', {
+            const worker = new Worker('../worker.js', {
                 type: 'module'
             });
 

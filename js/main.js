@@ -1,7 +1,7 @@
-import Alpine from '/js/alpine.esm.js';
+import Alpine from 'alpine.esm.js';
 window.Alpine = Alpine;
 
-import { Tiefling } from '/js/tiefling/tiefling.js';
+import { Tiefling } from 'tiefling/tiefling.js';
 
 let tiefling = new Tiefling(document.querySelector(".tiefling"));
 
@@ -279,7 +279,7 @@ Alpine.data('app', () => ({
 
     async generateBookmarkletLink() {
         try {
-            const response = await fetch('/js/bookmarklet.js');
+            const response = await fetch('bookmarklet.js');
             this.bookmarkletCode = this.createBookmarklet(await response.text());
         } catch (error) {
             console.error('Error generating bookmarklet:', error);
