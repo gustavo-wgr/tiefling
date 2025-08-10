@@ -1,4 +1,4 @@
-import * as THREE from 'node_modules/three/build/three.module.js';
+import * as THREE from './node_modules/three/build/three.module.js';
 import { WebXRManager } from './webxr-manager.js';
 
 export const Tiefling = function(container, options = {}) {
@@ -417,7 +417,7 @@ export const generateDepthmap = function(imageFile, options = {}) {
             'ort-wasm.wasm': 'onnx-wasm/ort-wasm.wasm'
     };
 
-    const onnxModel = options.onnxModel || '/models/depthanythingv2-vits-dynamic-quant.onnx';
+    const onnxModel = options.onnxModel || '../models/depthanythingv2-vits-dynamic-quant.onnx';
 
     const depthmapSize = options.depthmapSize || 512;
 

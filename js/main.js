@@ -1,7 +1,7 @@
-import Alpine from 'alpine.esm.js';
+import Alpine from './alpine.esm.js';
 window.Alpine = Alpine;
 
-import { Tiefling } from 'tiefling/tiefling.js';
+import { Tiefling } from './tiefling/tiefling.js';
 
 let tiefling = new Tiefling(document.querySelector(".tiefling"));
 
@@ -543,7 +543,7 @@ Alpine.data('app', () => ({
     // get nonce from api.php for sharing. POST request, send form data
     async getShareNonce() {
         try {
-            const response = await fetch('/api.php', {
+            const response = await fetch('./api.php', {
                 method: 'POST',
                 body: new URLSearchParams({
                     'action': 'getShareNonce'
@@ -573,7 +573,7 @@ Alpine.data('app', () => ({
         const uploadedDepthmapURL = await this.uploadFile(this.depthmapDataURL);
 
         if (uploadedInputURL && uploadedDepthmapURL) {
-            this.shareURL = `${window.location.origin}/?input=${encodeURIComponent(uploadedInputURL)}&depthmap=${encodeURIComponent(uploadedDepthmapURL)}&expandDepthmapRadius=${this.expandDepthmapRadius}`;
+            this.shareURL = `${window.location.origin}${window.location.pathname}?input=${encodeURIComponent(uploadedInputURL)}&depthmap=${encodeURIComponent(uploadedDepthmapURL)}&expandDepthmapRadius=${this.expandDepthmapRadius}`;
             this.shareState = 'uploaded';
         } else {
             this.shareState = 'error';
@@ -613,7 +613,7 @@ Alpine.data('app', () => ({
         data.append('shareNonce', this.shareNonce);
 
         try {
-            const response = await fetch('/api.php', {
+            const response = await fetch('./api.php', {
                 method: 'POST',
                 body: data
             });
