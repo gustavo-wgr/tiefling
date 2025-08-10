@@ -321,11 +321,11 @@ Alpine.data('app', () => ({
         // ?input parameter? load image from URL
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('input')) {
-            this.inputImageURL = urlParams.get('input');
+            this.inputImageURL = this.fixRelativeURL(urlParams.get('input'));
         }
 
         if (urlParams.get('depthmap')) {
-            this.depthmapImageURL = urlParams.get('depthmap');
+            this.depthmapImageURL = this.fixRelativeURL(urlParams.get('depthmap'));
         }
 
         if (urlParams.get('expandDepthmapRadius')) {
@@ -344,6 +344,15 @@ Alpine.data('app', () => ({
     },
 
 
+    // Helper function to fix relative URLs for GitHub Pages
+    fixRelativeURL(url) {
+        // If it's a relative URL (doesn't start with http/https), prepend the base path
+        if (!url.match(/^https?:\/\//)) {
+            return window.location.pathname.replace(/\/[^\/]*$/, '/') + url;
+        }
+        return url;
+    },
+
     async initialLoadImage() {
 
         tiefling.setDisplayMode(this.displayMode);
@@ -357,8 +366,8 @@ Alpine.data('app', () => ({
             // select a random example image
             const exampleImage = this.exampleImages[Math.floor(Math.random() * this.exampleImages.length)];
 
-            this.depthmapImageURL = this.depthmapURL = this.depthmapDataURL = exampleImage.depthmap;
-            this.inputImageURL = exampleImage.image;
+            this.depthmapImageURL = this.depthmapURL = this.depthmapDataURL = this.fixRelativeURL(exampleImage.depthmap);
+            this.inputImageURL = this.fixRelativeURL(exampleImage.image);
             this.loadImage();
         }
 
