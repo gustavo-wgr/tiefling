@@ -556,3 +556,90 @@ body.hide-interface {
         }
     }
 }
+
+/* VR Controls */
+.vr-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 10px;
+    margin-top: 10px;
+}
+
+.vr-controls .button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: var(--color-main);
+    color: var(--color-light);
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.vr-controls .button:hover:not([disabled]) {
+    background: #0070e0;
+    transform: translateY(-1px);
+}
+
+.vr-controls .button[disabled] {
+    background: var(--color-text-subtle);
+    cursor: not-allowed;
+    transform: none;
+}
+
+.vr-controls .button svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* VR Status Indicator */
+.vr-status {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background: rgba(0, 133, 255, 0.9);
+    color: white;
+    padding: 10px 15px;
+    border-radius: var(--border-radius);
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 1000;
+    display: none;
+}
+
+.vr-status.active {
+    display: block;
+}
+
+/* VR-specific adjustments */
+body.vr-mode {
+    cursor: none;
+}
+
+body.vr-mode .controls {
+    display: none;
+}
+
+/* VR Distance Controls */
+.vr-distance-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 10px;
+    margin-top: 10px;
+}
+
+.vr-distance-buttons .button.small {
+    padding: 8px 12px;
+    font-size: 12px;
+    min-height: auto;
+}
+
+.vr-distance-buttons .button.small:hover:not([disabled]) {
+    background: var(--color-main);
+    color: var(--color-light);
+}

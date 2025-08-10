@@ -53,6 +53,12 @@ Alpine.data('app', () => ({
     deviceOrientationPossible: window.DeviceOrientationEvent && 'ontouchstart' in window ? true : false,
     deviceOrientationEnabled: false,
 
+    // WebXR/VR support
+    webXRSupported: tiefling.isWebXRSupported(),
+    vrAvailable: false,
+    vrActive: false,
+    vrImageDistance: 3, // Current VR image distance in meters
+
     fullscreen: false, // fullscreen selected?
 
     bookmarkletCode: '',
@@ -228,6 +234,11 @@ Alpine.data('app', () => ({
             this.shareState = 'ready';
         } catch (error) {
             console.error('Error getting share nonce:', error);
+        }
+
+        // Check VR availability
+        if (this.webXRSupported) {
+            this.vrAvailable = await tiefling.isVRAvailableAsync();
         }
 
     },
@@ -712,6 +723,53 @@ Alpine.data('app', () => ({
 
         if (this.mouseDown) {
             this.adjustMouseXOffset();
+        }
+    },
+
+    // WebXR/VR methods
+    async enterVR() {
+        if (!this.vrAvailable) {
+            alert('VR not available on this device');
+            return;
+        }
+
+        try {
+            this.vrActive = await tiefling.enterVR();
+            if (this.vrActive) {
+                console.log('Entered VR mode');
+            }
+        } catch (error) {
+            console.error('Failed to enter VR:', error);
+            alert('Failed to enter VR: ' + error.message);
+        }
+    },
+
+    exitVR() {
+        tiefling.exitVR();
+        this.vrActive = false;
+        console.log('Exited VR mode');
+    },
+
+    // Update VR status
+    updateVRStatus() {
+        this.vrActive = tiefling.isVRActive();
+        if (this.vrActive) {
+            this.vrImageDistance = tiefling.getVRDistance();
+        }
+    },
+
+    // VR Distance Control methods
+    adjustVRDistance(delta) {
+        if (this.vrActive && tiefling) {
+            tiefling.updateVRDistance(delta);
+            this.vrImageDistance = tiefling.getVRDistance();
+        }
+    },
+
+    setVRDistance(distance) {
+        if (tiefling) {
+            tiefling.setVRDistance(distance);
+            this.vrImageDistance = tiefling.getVRDistance();
         }
     }
 

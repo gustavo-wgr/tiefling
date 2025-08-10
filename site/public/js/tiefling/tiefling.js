@@ -1,4 +1,5 @@
 import * as THREE from '/js/tiefling/node_modules/three/build/three.module.js';
+import { WebXRManager } from './webxr-manager.js';
 
 export const Tiefling = function(container, options = {}) {
 
@@ -344,6 +345,58 @@ export const Tiefling = function(container, options = {}) {
             this.idleMovementEnabled = value;
         },
 
+        // WebXR methods
+        enterVR: async function() {
+            if (view1 && view1.enterVR) {
+                return await view1.enterVR();
+            }
+            return false;
+        },
+
+        exitVR: function() {
+            if (view1 && view1.exitVR) {
+                view1.exitVR();
+            }
+        },
+
+        isVRAvailable: function() {
+            return view1 && view1.isVRAvailable ? view1.isVRAvailable() : false;
+        },
+
+        isVRActive: function() {
+            return view1 && view1.isVRActive ? view1.isVRActive() : false;
+        },
+
+        // Static method to check WebXR support
+        isWebXRSupported: function() {
+            return WebXRManager.isSupported();
+        },
+
+        // Static method to check VR availability
+        isVRAvailableAsync: async function() {
+            return await WebXRManager.isVRAvailable();
+        },
+
+        // VR Distance Control methods
+        updateVRDistance: function(delta) {
+            if (view1 && view1.updateVRDistance) {
+                view1.updateVRDistance(delta);
+            }
+        },
+
+        getVRDistance: function() {
+            if (view1 && view1.getVRDistance) {
+                return view1.getVRDistance();
+            }
+            return 3; // Default distance
+        },
+
+        setVRDistance: function(distance) {
+            if (view1 && view1.setVRDistance) {
+                view1.setVRDistance(distance);
+            }
+        }
+
     }
 
 }
@@ -542,10 +595,12 @@ export const TieflingView = function (container, image, depthMap, options) {
     let bgScene, mainScene, bgMesh;
     let scissorX = 0, scissorY = 0, scissorWidth = containerWidth, scissorHeight = containerHeight;
 
+    // WebXR integration
+    let webXRManager = null;
+    let isVRActive = false;
 
     const easing = 0.05; // higher: snappier movement
     let animationFrameId;
-
 
     let material;
     let uniforms = {
@@ -569,7 +624,12 @@ export const TieflingView = function (container, image, depthMap, options) {
         camera.position.z = 4;
         camera.lookAt(0, 0, 0);
 
-        renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, alpha: true });
+        renderer = new THREE.WebGLRenderer({ 
+            antialias: true, 
+            preserveDrawingBuffer: true, 
+            alpha: true,
+            xrCompatible: true  // Enable XR compatibility
+        });
         renderer.outputEncoding = THREE.sRGBEncoding;
         renderer.setPixelRatio(devicePixelRatio);
         renderer.setSize(containerWidth, containerHeight);
@@ -677,6 +737,11 @@ export const TieflingView = function (container, image, depthMap, options) {
 
                 mesh.scale.set(scale, scale, 1);
                 mainScene.add(mesh);
+
+                // Initialize WebXR manager after mesh is created
+                if (WebXRManager.isSupported()) {
+                    webXRManager = new WebXRManager(renderer, mainScene, camera, container);
+                }
 
                 resolve();
             };
@@ -846,7 +911,10 @@ export const TieflingView = function (container, image, depthMap, options) {
     }
 
     function animate() {
-        animationFrameId = requestAnimationFrame(animate);
+        // Don't use requestAnimationFrame in VR mode - WebXR handles the render loop
+        if (!isVRActive) {
+            animationFrameId = requestAnimationFrame(animate);
+        }
 
         // during rendering, strafing mouse movement seems stronger. so adjust based on focus
         // focus = 0.5: 1. focus = 0: 0.3
@@ -859,10 +927,15 @@ export const TieflingView = function (container, image, depthMap, options) {
             uniforms.mouseDelta.value.set(targetX, -targetY);
             uniforms.focus.value = focus;
             uniforms.sensitivity.value = baseMouseSensitivity;
+            
+            // Update VR-specific uniforms
+            if (webXRManager && webXRManager.isVRActive) {
+                webXRManager.updateVRUniforms(uniforms);
+            }
         }
 
-        // Then render main scene with perspective camera and scissor
-        if (scissorWidth > 0 && scissorHeight > 0) {
+        // Only render normally if not in VR mode
+        if (!isVRActive && scissorWidth > 0 && scissorHeight > 0) {
             renderer.setScissorTest(true);
             renderer.setScissor(scissorX, scissorY, scissorWidth, scissorHeight);
             renderer.render(mainScene, camera);
@@ -977,6 +1050,56 @@ export const TieflingView = function (container, image, depthMap, options) {
 
         setExpandDepthmapRadius: function(value) {
             expandDepthmapRadius = value;
+        },
+
+        // WebXR methods
+        enterVR: async function() {
+            if (webXRManager) {
+                try {
+                    await webXRManager.enterVR();
+                    isVRActive = true;
+                    return true;
+                } catch (error) {
+                    console.error('Failed to enter VR:', error);
+                    return false;
+                }
+            }
+            return false;
+        },
+
+        exitVR: function() {
+            if (webXRManager) {
+                webXRManager.exitVR();
+                isVRActive = false;
+            }
+        },
+
+        isVRAvailable: function() {
+            return webXRManager !== null;
+        },
+
+        isVRActive: function() {
+            return isVRActive;
+        },
+
+        // VR Distance Control methods
+        updateVRDistance: function(delta) {
+            if (webXRManager && isVRActive) {
+                webXRManager.updateVRDistance(delta);
+            }
+        },
+
+        getVRDistance: function() {
+            if (webXRManager) {
+                return webXRManager.getVRDistance();
+            }
+            return 3; // Default distance
+        },
+
+        setVRDistance: function(distance) {
+            if (webXRManager) {
+                webXRManager.setVRDistance(distance);
+            }
         }
     };
 
