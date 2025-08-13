@@ -315,7 +315,7 @@ Alpine.data('app', () => ({
     // create bookmarklet for current domain
     createBookmarklet(sourceCode) {
         // replace ---URL_PREFIX--- with current protocol, domain, port and path
-        const urlPrefix = window.location.origin;
+        const urlPrefix = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/');
 
         let code = sourceCode
             .replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '') // Remove comments
@@ -362,7 +362,11 @@ Alpine.data('app', () => ({
     fixRelativeURL(url) {
         // If it's a relative URL (doesn't start with http/https), prepend the base path
         if (!url.match(/^https?:\/\//)) {
-            return window.location.pathname.replace(/\/[^\/]*$/, '/') + url;
+            // Get the base path (everything up to the last slash in the pathname)
+            const basePath = window.location.pathname.replace(/\/[^\/]*$/, '/');
+            // If the URL already starts with a slash, remove it to avoid double slashes
+            const cleanUrl = url.startsWith('/') ? url.substring(1) : url;
+            return basePath + cleanUrl;
         }
         return url;
     },
@@ -428,11 +432,16 @@ Alpine.data('app', () => ({
             this.inputDataURL = URL.createObjectURL(this.inputImage);
 
 
-            // add ?input (and optional &depthmap) parameter to history, if the urls start with https
-            if (this.inputImageURL.match(/^https?:\/\//)) {
-                this.setURLParam('input', this.inputImageURL);
-                if (this.depthmapURL.match(/^https?:\/\//)) {
-                    this.setURLParam('depthmap', this.depthmapURL);
+            // add ?input (and optional &depthmap) parameter to history
+            // For relative URLs, we need to store the original relative path, not the fixed absolute URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const originalInputURL = urlParams.get('input') || this.inputImageURL;
+            const originalDepthmapURL = urlParams.get('depthmap') || this.depthmapURL;
+            
+            if (originalInputURL) {
+                this.setURLParam('input', originalInputURL);
+                if (originalDepthmapURL) {
+                    this.setURLParam('depthmap', originalDepthmapURL);
                 }
             }
 
