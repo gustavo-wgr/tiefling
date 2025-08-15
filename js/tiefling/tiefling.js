@@ -46,36 +46,100 @@ export const Tiefling = function(container, options = {}) {
      * @param image - path to image
      * @param depthMap - path to depth map
      */
-    const load3DImage = (image, depthMap) => {
+    const load3DImage = async (image, depthMap) => {
+
+        // Check if we're in VR mode
+        const isInVR = view1 && view1.isVRActive && view1.isVRActive();
 
         if (view1) {
-            view1.destroy();
+            if (isInVR) {
+                // In VR mode, update the existing view instead of destroying it
+                console.log('Updating VR view with new image');
+                // We'll need to add a method to update the image in the view
+                if (view1.updateImage) {
+                    try {
+                        await view1.updateImage(image, depthMap);
+                        console.log('VR view updated successfully');
+                    } catch (error) {
+                        console.error('Failed to update VR view, falling back to destroy/recreate:', error);
+                        view1.destroy();
+                        view1 = TieflingView(container.querySelector('.inner .container-left'), image, depthMap, {
+                            focus: this.focus,
+                            devicePixelRatio: this.devicePixelRatio,
+                            expandDepthmapRadius: this.expandDepthmapRadius,
+                        });
+                    }
+                } else {
+                    // Fallback: destroy and recreate (less ideal but should work)
+                    view1.destroy();
+                    view1 = TieflingView(container.querySelector('.inner .container-left'), image, depthMap, {
+                        focus: this.focus,
+                        devicePixelRatio: this.devicePixelRatio,
+                        expandDepthmapRadius: this.expandDepthmapRadius,
+                    });
+                }
+            } else {
+                view1.destroy();
+                view1 = TieflingView(container.querySelector('.inner .container-left'), image, depthMap, {
+                    focus: this.focus,
+                    devicePixelRatio: this.devicePixelRatio,
+                    expandDepthmapRadius: this.expandDepthmapRadius,
+                });
+            }
+        } else {
+            view1 = TieflingView(container.querySelector('.inner .container-left'), image, depthMap, {
+                focus: this.focus,
+                devicePixelRatio: this.devicePixelRatio,
+                expandDepthmapRadius: this.expandDepthmapRadius,
+            });
         }
 
         if (this.displayMode === 'hsbs' || this.displayMode === 'fsbs' || this.displayMode === 'anaglyph') {
 
-            view1 = TieflingView(container.querySelector('.inner .container-left'), image, depthMap, {
-                focus: this.focus,
-                devicePixelRatio: this.devicePixelRatio,
-                expandDepthmapRadius: this.expandDepthmapRadius,
-            });
-
             if (view2) {
-                view2.destroy();
+                if (isInVR) {
+                    // In VR mode, update the existing view instead of destroying it
+                    if (view2.updateImage) {
+                        try {
+                            await view2.updateImage(image, depthMap);
+                            console.log('VR view2 updated successfully');
+                        } catch (error) {
+                            console.error('Failed to update VR view2, falling back to destroy/recreate:', error);
+                            view2.destroy();
+                            view2 = TieflingView(container.querySelector('.inner .container-right'), image, depthMap, {
+                                mouseXOffset: -this.mouseXOffset,
+                                focus: this.focus,
+                                devicePixelRatio: this.devicePixelRatio,
+                                expandDepthmapRadius: this.expandDepthmapRadius,
+                            });
+                        }
+                    } else {
+                        // Fallback: destroy and recreate
+                        view2.destroy();
+                        view2 = TieflingView(container.querySelector('.inner .container-right'), image, depthMap, {
+                            mouseXOffset: -this.mouseXOffset,
+                            focus: this.focus,
+                            devicePixelRatio: this.devicePixelRatio,
+                            expandDepthmapRadius: this.expandDepthmapRadius,
+                        });
+                    }
+                } else {
+                    view2.destroy();
+                    view2 = TieflingView(container.querySelector('.inner .container-right'), image, depthMap, {
+                        mouseXOffset: -this.mouseXOffset,
+                        focus: this.focus,
+                        devicePixelRatio: this.devicePixelRatio,
+                        expandDepthmapRadius: this.expandDepthmapRadius,
+                    });
+                }
+            } else {
+                view2 = TieflingView(container.querySelector('.inner .container-right'), image, depthMap, {
+                    mouseXOffset: -this.mouseXOffset,
+                    focus: this.focus,
+                    devicePixelRatio: this.devicePixelRatio,
+                    expandDepthmapRadius: this.expandDepthmapRadius,
+                });
             }
-            view2 = TieflingView(container.querySelector('.inner .container-right'), image, depthMap, {
-                mouseXOffset: -this.mouseXOffset,
-                focus: this.focus,
-                devicePixelRatio: this.devicePixelRatio,
-                expandDepthmapRadius: this.expandDepthmapRadius,
-            });
-        } else {
-            view1 = TieflingView(container.querySelector('.inner .container-left'), image, depthMap, {
-                mouseXOffset: 0,
-                focus: this.focus,
-                devicePixelRatio: this.devicePixelRatio,
-                expandDepthmapRadius: this.expandDepthmapRadius,
-            });
         }
     }
 
@@ -394,6 +458,27 @@ export const Tiefling = function(container, options = {}) {
         setVRDistance: function(distance) {
             if (view1 && view1.setVRDistance) {
                 view1.setVRDistance(distance);
+            }
+        },
+
+        // Method to set example navigation callback
+        setExampleChangeCallback: function(callback) {
+            if (view1 && view1.setExampleChangeCallback) {
+                view1.setExampleChangeCallback(callback);
+            }
+        },
+
+        // Method to set VR exit completion callback
+        setVRExitCompleteCallback: function(callback) {
+            if (view1 && view1.setVRExitCompleteCallback) {
+                view1.setVRExitCompleteCallback(callback);
+            }
+        },
+
+        // Method to force VR render update
+        forceVRRenderUpdate: function() {
+            if (view1 && view1.forceVRRenderUpdate) {
+                view1.forceVRRenderUpdate();
             }
         }
 
@@ -1000,13 +1085,15 @@ export const TieflingView = function (container, image, depthMap, options) {
         destroy: function() {
             window.removeEventListener('resize', onResize);
 
-            if (material.map) {
+            if (material && material.map) {
                 material.map.dispose();
             }
 
             if (mesh) {
                 mesh.geometry.dispose();
-                material.dispose();
+                if (material) {
+                    material.dispose();
+                }
             }
 
             if (bgMesh) {
@@ -1016,8 +1103,13 @@ export const TieflingView = function (container, image, depthMap, options) {
             }
 
             if (renderer) {
-                renderer.dispose();
-                container.removeChild(renderer.domElement);
+                // Don't dispose renderer or remove DOM element if in VR mode
+                if (!isVRActive) {
+                    renderer.dispose();
+                    if (container && renderer.domElement && container.contains(renderer.domElement)) {
+                        container.removeChild(renderer.domElement);
+                    }
+                }
             }
 
             if (animationFrameId) {
@@ -1099,6 +1191,201 @@ export const TieflingView = function (container, image, depthMap, options) {
         setVRDistance: function(distance) {
             if (webXRManager) {
                 webXRManager.setVRDistance(distance);
+            }
+        },
+
+        // Method to update image and depthmap without destroying the view
+        updateImage: async function(newImage, newDepthMap) {
+            console.log('=== VR IMAGE UPDATE START ===');
+            console.log('Updating TieflingView with new image:', newImage);
+            console.log('Current VR state - isVRActive:', isVRActive);
+            console.log('WebXR manager exists:', !!webXRManager);
+            
+            try {
+                console.log('1. Loading new texture...');
+                // Load new texture
+                const textureLoader = new THREE.TextureLoader();
+                const newTexture = await new Promise((resolve, reject) => {
+                    textureLoader.load(newImage, texture => {
+                        texture.encoding = THREE.sRGBEncoding;
+                        console.log('2. New texture loaded successfully:', texture);
+                        resolve(texture);
+                    }, undefined, reject);
+                });
+
+                console.log('3. Loading new depthmap and creating geometry...');
+                // Load new depthmap and create geometry
+                const { newGeometry, depthData } = await new Promise((resolve, reject) => {
+                    const img = new Image();
+                    img.src = newDepthMap;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0);
+                        let depthData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+                        // Expand depth map to fill in gaps
+                        if (expandDepthmapRadius > 0) {
+                            depthData = expandDepthMap(depthData, expandDepthmapRadius);
+                        }
+
+                        const geometry = createGeometry(
+                            Math.min(meshResolution, img.width),
+                            Math.min(meshResolution, img.height),
+                            depthData
+                        );
+                        console.log('4. New geometry created successfully:', geometry);
+                        resolve({ newGeometry: geometry, depthData: depthData });
+                    };
+                    img.onerror = reject;
+                });
+
+                console.log('5. Updating mesh with new resources...');
+                // Update the mesh
+                if (mesh) {
+                    console.log('6. Mesh exists, disposing old resources...');
+                    // Dispose old resources
+                    if (mesh.geometry) {
+                        mesh.geometry.dispose();
+                        console.log('7. Old geometry disposed');
+                    }
+                    if (material && material.map) {
+                        material.map.dispose();
+                        console.log('8. Old texture disposed');
+                    }
+
+                    console.log('9. Updating mesh with new resources...');
+                    // Update with new resources
+                    mesh.geometry = newGeometry;
+                    material.map = newTexture;
+                    uniforms.map.value = newTexture;
+                    
+                    console.log('10. Forcing texture and material updates...');
+                    // Force texture update
+                    if (newTexture) {
+                        newTexture.needsUpdate = true;
+                        console.log('11. Texture needsUpdate set to true');
+                    }
+                    
+                    // Force material update
+                    if (material) {
+                        material.needsUpdate = true;
+                        console.log('12. Material needsUpdate set to true');
+                    }
+
+                    console.log('13. Updating aspect ratio and scaling...');
+                    // Update image aspect ratio
+                    imageAspectRatio = newTexture.image.width / newTexture.image.height;
+                    updateScissorDimensions();
+
+                    // Scale the mesh appropriately
+                    const containerAspect = containerWidth / containerHeight;
+                    const imageAspect = depthData.width / depthData.height;
+                    const visibleHeight = 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov/2)) * camera.position.z;
+                    const visibleWidth = visibleHeight * camera.aspect;
+
+                    console.log('Scaling debug info:', {
+                        containerAspect,
+                        imageAspect,
+                        visibleHeight,
+                        visibleWidth,
+                        geometryHeight: newGeometry.parameters.height,
+                        geometryWidth: newGeometry.parameters.width,
+                        cameraFov: camera.fov,
+                        cameraPositionZ: camera.position.z
+                    });
+
+                    let scale;
+                    if (containerAspect > imageAspect) {
+                        scale = visibleHeight / newGeometry.parameters.height;
+                    } else {
+                        scale = visibleWidth / newGeometry.parameters.width;
+                    }
+
+                    // Ensure scale is not zero or negative
+                    if (scale <= 0 || !isFinite(scale)) {
+                        console.log('Invalid scale detected, using default scale of 1');
+                        scale = 1;
+                    }
+
+                    // In VR mode, use a more reliable scaling approach
+                    if (isVRActive) {
+                        console.log('VR mode detected, using VR-specific scaling');
+                        // Use a fixed scale that works well in VR
+                        const vrScale = 2.0; // Adjust this value as needed
+                        mesh.scale.set(vrScale, vrScale, 1);
+                        console.log('14. VR mesh scale set to:', vrScale);
+                    } else {
+                        mesh.scale.set(scale, scale, 1);
+                        console.log('14. Mesh scale updated:', scale);
+                    }
+                    
+                    // Force mesh update
+                    mesh.matrixWorldNeedsUpdate = true;
+                    console.log('15. Mesh matrixWorldNeedsUpdate set to true');
+
+                    console.log('16. Successfully updated VR view with new image');
+                    
+                    console.log('17. Attempting render updates...');
+                    // Force a render update to show the new image immediately
+                    if (renderer && mainScene && camera) {
+                        console.log('18. Calling renderer.render directly...');
+                        renderer.render(mainScene, camera);
+                        console.log('19. Direct render call completed');
+                    } else {
+                        console.log('18. Renderer, scene, or camera missing:', {
+                            renderer: !!renderer,
+                            mainScene: !!mainScene,
+                            camera: !!camera
+                        });
+                    }
+                    
+                    // Also force WebXR render update if available
+                    if (webXRManager && webXRManager.forceRenderUpdate) {
+                        console.log('20. Calling WebXR forceRenderUpdate...');
+                        webXRManager.forceRenderUpdate();
+                        console.log('21. WebXR forceRenderUpdate completed');
+                    } else {
+                        console.log('20. WebXR manager or forceRenderUpdate method missing:', {
+                            webXRManager: !!webXRManager,
+                            forceRenderUpdate: !!(webXRManager && webXRManager.forceRenderUpdate)
+                        });
+                    }
+                    
+                    // Additional delayed render update to ensure WebXR picks up the changes
+                    setTimeout(() => {
+                        console.log('22. Delayed render update (100ms)...');
+                        if (webXRManager && webXRManager.forceRenderUpdate) {
+                            webXRManager.forceRenderUpdate();
+                            console.log('23. Delayed WebXR render update completed');
+                        }
+                    }, 100);
+                } else {
+                    console.log('ERROR: Mesh does not exist!');
+                }
+            } catch (error) {
+                console.error('ERROR updating image in VR:', error);
+                // Fallback to destroy and recreate
+                this.destroy();
+                // Note: The calling code will handle recreation
+            }
+            
+            console.log('=== VR IMAGE UPDATE END ===');
+        },
+
+        // Method to set example navigation callback
+        setExampleChangeCallback: function(callback) {
+            if (webXRManager) {
+                webXRManager.setExampleChangeCallback(callback);
+            }
+        },
+
+        // Method to force VR render update
+        forceVRRenderUpdate: function() {
+            if (webXRManager) {
+                webXRManager.forceRenderUpdate();
             }
         }
     };

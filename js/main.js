@@ -68,6 +68,9 @@ Alpine.data('app', () => ({
 
     showPrivacyPolicy: false,
 
+    // Example navigation
+    currentExampleIndex: 0,
+
     exampleImages: [
         {
             'key': 'autochrome-89',
@@ -257,6 +260,58 @@ Alpine.data('app', () => ({
 
     },
 
+    // Example navigation methods
+    navigateExample(direction) {
+        console.log('navigateExample called with direction:', direction);
+        console.log('Current example index before:', this.currentExampleIndex);
+        
+        if (direction === 'next') {
+            this.currentExampleIndex = (this.currentExampleIndex + 1) % this.exampleImages.length;
+        } else if (direction === 'previous') {
+            this.currentExampleIndex = (this.currentExampleIndex - 1 + this.exampleImages.length) % this.exampleImages.length;
+        }
+        
+        console.log('Current example index after:', this.currentExampleIndex);
+        this.loadExample(this.currentExampleIndex);
+    },
+
+    loadExample(index) {
+        console.log('loadExample called with index:', index);
+        const exampleImage = this.exampleImages[index];
+        this.currentExampleIndex = index;
+        
+        // Clear any existing input
+        this.inputImageFile = null;
+        this.inputImageURL = '';
+        
+        // Set the example image and depthmap
+        this.depthmapImageURL = this.depthmapURL = this.depthmapDataURL = this.fixRelativeURL(exampleImage.depthmap);
+        this.inputImageURL = this.fixRelativeURL(exampleImage.image);
+        this.expandDepthmapRadius = exampleImage.expandDepthmapRadius;
+        
+        console.log('About to load image:', this.inputImageURL);
+        console.log('About to load depthmap:', this.depthmapImageURL);
+        
+        // Load the new image
+        this.loadImage();
+        
+        console.log(`Loaded example: ${exampleImage.key} (${index + 1}/${this.exampleImages.length})`);
+        
+        // Force VR refresh if in VR mode
+        if (this.vrActive && tiefling) {
+            setTimeout(() => {
+                // Force multiple render updates to ensure the new image appears
+                for (let i = 0; i < 3; i++) {
+                    setTimeout(() => {
+                        if (tiefling.forceVRRenderUpdate) {
+                            tiefling.forceVRRenderUpdate();
+                        }
+                    }, i * 50);
+                }
+            }, 200);
+        }
+    },
+
     initOrientationSensors() {
         if (this.deviceOrientationPossible) {
             window.addEventListener('deviceorientation', (event) => {
@@ -417,14 +472,14 @@ Alpine.data('app', () => ({
             }
 
             if (this.depthmapImage) {
-                tiefling.load3DImage(URL.createObjectURL(this.inputImage), URL.createObjectURL(this.depthmapImage));
+                await tiefling.load3DImage(URL.createObjectURL(this.inputImage), URL.createObjectURL(this.depthmapImage));
 
             } else {
                 this.depthmapURL = await tiefling.getDepthmapURL(this.inputImage);
 
                 this.depthmapImage = await fetch(this.depthmapURL).then(response => response.blob());
 
-                tiefling.load3DImage(URL.createObjectURL(this.inputImage), this.depthmapURL);
+                await tiefling.load3DImage(URL.createObjectURL(this.inputImage), this.depthmapURL);
 
             }
 
@@ -769,6 +824,22 @@ Alpine.data('app', () => ({
             this.vrActive = await tiefling.enterVR();
             if (this.vrActive) {
                 console.log('Entered VR mode');
+                
+                // Set up VR example navigation callback when VR is active
+                tiefling.setExampleChangeCallback((direction) => {
+                    console.log('VR callback received:', direction);
+                    this.navigateExample(direction);
+                });
+                
+                // Set up VR exit completion callback
+                tiefling.setVRExitCompleteCallback(() => {
+                    console.log('VR exit complete callback received');
+                    this.vrActive = false;
+                    // Force a render update to restore normal view
+                    if (tiefling && tiefling.forceVRRenderUpdate) {
+                        tiefling.forceVRRenderUpdate();
+                    }
+                });
             }
         } catch (error) {
             console.error('Failed to enter VR:', error);
@@ -777,9 +848,10 @@ Alpine.data('app', () => ({
     },
 
     exitVR() {
+        console.log('Main app exitVR called');
         tiefling.exitVR();
-        this.vrActive = false;
-        console.log('Exited VR mode');
+        // Don't set vrActive to false here - let the callback handle it
+        console.log('Exit VR request sent to tiefling');
     },
 
     // Update VR status
